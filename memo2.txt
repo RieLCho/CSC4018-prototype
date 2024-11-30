@@ -1,0 +1,68 @@
+1. 더 많은 가구 탐지
+
+지금 CLIP으로 각 라벨의 유사도를 평가하지만, 사진 안에 있는 모든 가구를 탐지하려면 다음과 같은 전략을 사용할 수 있습니다:
+a. 객체 감지 모델 사용 (e.g., YOLO, DETR, Faster R-CNN)
+
+    객체 감지 모델을 사용해 이미지에서 가구와 물건의 위치(바운딩 박스)를 먼저 탐지한 뒤, 각 영역에 대해 CLIP 모델을 적용합니다.
+
+    프로세스:
+        객체 감지 모델로 사진 속 모든 물체를 탐지합니다.
+        각 물체 영역을 잘라내어 CLIP 모델에 입력합니다.
+        각 잘라낸 영역의 유사도를 기반으로 가구 이름을 예측합니다.
+
+    from yolov5 import YOLOv5  # 예시 코드
+    detected_objects = object_detection(image_path="cozy_room.jpg")
+
+    for obj in detected_objects:
+        cropped_image = preprocess(obj).unsqueeze(0).to(device)
+        features = model.encode_image(cropped_image)
+        # CLIP으로 라벨 유사도 평가
+
+b. 더 많은 라벨 확장
+
+    CLIP에 입력하는 라벨(furniture_labels)을 확장해 다양한 가구 이름을 포함하세요.
+    예시:
+
+    furniture_labels = [
+        "a bed", "a sofa", "a table", "a chair", "a bookshelf",
+        "a mirror", "a nightstand", "a rug", "a plant", "a curtain", "a picture frame"
+    ]
+
+2. 더 많은 분위기 탐지
+
+CLIP에서 분위기를 탐지하려면 분위기 키워드를 더 많이 추가해야 합니다. 다음은 확장 가능한 분위기 태그입니다:
+a. 예시 태그:
+
+    공간 분위기: "modern", "cozy", "luxurious", "minimalist", "rustic", "bohemian", "industrial", "vintage", "traditional", "warm", "bright", "dark"
+    컬러 기반: "white", "beige", "wooden", "gray", "neutral", "bold", "colorful"
+    기능: "bedroom", "living room", "office", "kitchen", "bathroom", "dining room"
+
+b. 라벨 확장 코드:
+
+style_labels = [
+    "modern", "cozy", "luxurious", "minimalist", "rustic",
+    "bohemian", "industrial", "vintage", "traditional", "bright",
+    "dark", "neutral", "warm", "wooden", "colorful"
+]
+
+c. CLIP으로 분위기 평가:
+
+위의 태그 리스트를 사용해 이미지와 텍스트 간 유사도를 평가합니다.
+3. 태그 리스트를 얻는 방법
+a. 가구 태그
+
+    OpenAI CLIP 데이터셋: CLIP이 학습에 사용한 태그의 일부를 참고할 수 있습니다.
+    COCO 데이터셋: 다양한 객체 이름(가구 포함)이 포함된 레이블 세트.
+    ADE20K 데이터셋: 인테리어와 가구에 관련된 라벨 정보.
+
+b. 분위기 태그
+
+    Interior Design Keywords: 인테리어 관련 주요 키워드를 참고.
+    ChatGPT나 구글 검색으로 관련된 분위기 용어를 확장.
+
+4. 최종 추천 프로세스
+
+    객체 감지 모델로 이미지 내 물체를 탐지.
+    각 물체에 대해 CLIP으로 가구 이름을 예측.
+    CLIP의 확장된 스타일 라벨을 사용해 분위기를 분석.
+    예측 결과를 라벨별 확률값과 함께 시각화.
