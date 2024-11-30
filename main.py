@@ -7,7 +7,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 model, preprocess = clip.load("ViT-B/32", device=device)
 
 # 이미지 로드 및 전처리
-image = preprocess(Image.open("cozy_room.jpg")).unsqueeze(0).to(device)
+image = preprocess(Image.open("mordern_room.jpg")).unsqueeze(0).to(device)
 
 # 라벨 준비
 furniture_labels = ["a bed", "a sofa", "a table", "a chair", "a bookshelf"]
